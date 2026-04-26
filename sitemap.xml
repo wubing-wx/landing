@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<url><loc>https://wubing-wx.github.io/landing/</loc><lastmod>2026-04-26</lastmod><priority>1.0</priority></url>
 <url><loc>https://wubing-wx.github.io/landing/subwatch/</loc><lastmod>2026-04-26</lastmod><priority>1.0</priority></url>
 <url><loc>https://wubing-wx.github.io/landing/sliminvoice/</loc><lastmod>2026-04-26</lastmod><priority>1.0</priority></url>
 <url><loc>https://wubing-wx.github.io/landing/bulkshop/</loc><lastmod>2026-04-26</lastmod><priority>1.0</priority></url>
@@ -33,4 +34,14 @@
 <url><loc>https://wubing-wx.github.io/landing/bulkshop/guides/bulk-update-tags/</loc><lastmod>2026-04-26</lastmod><priority>0.8</priority></url>
 <url><loc>https://wubing-wx.github.io/landing/bulkshop/guides/bulk-update-variants/</loc><lastmod>2026-04-26</lastmod><priority>0.8</priority></url>
 <url><loc>https://wubing-wx.github.io/landing/bulkshop/guides/bulk-upload-tracking/</loc><lastmod>2026-04-26</lastmod><priority>0.8</priority></url>
+<url><loc>https://wubing-wx.github.io/landing/subwatch/use-cases/brand-mentions/</loc><lastmod>2026-04-26</lastmod><priority>0.8</priority></url>
+<url><loc>https://wubing-wx.github.io/landing/subwatch/use-cases/product-research/</loc><lastmod>2026-04-26</lastmod><priority>0.8</priority></url>
+<url><loc>https://wubing-wx.github.io/landing/subwatch/use-cases/competitor-analysis/</loc><lastmod>2026-04-26</lastmod><priority>0.8</priority></url>
+<url><loc>https://wubing-wx.github.io/landing/subwatch/use-cases/customer-feedback/</loc><lastmod>2026-04-26</lastmod><priority>0.8</priority></url>
+<url><loc>https://wubing-wx.github.io/landing/subwatch/use-cases/market-validation/</loc><lastmod>2026-04-26</lastmod><priority>0.8</priority></url>
+<url><loc>https://wubing-wx.github.io/landing/subwatch/use-cases/content-ideas/</loc><lastmod>2026-04-26</lastmod><priority>0.8</priority></url>
+<url><loc>https://wubing-wx.github.io/landing/subwatch/use-cases/lead-generation/</loc><lastmod>2026-04-26</lastmod><priority>0.8</priority></url>
+<url><loc>https://wubing-wx.github.io/landing/subwatch/use-cases/gummysearch-alternative/</loc><lastmod>2026-04-26</lastmod><priority>0.8</priority></url>
+<url><loc>https://wubing-wx.github.io/landing/subwatch/use-cases/reddit-keyword-alerts/</loc><lastmod>2026-04-26</lastmod><priority>0.8</priority></url>
+<url><loc>https://wubing-wx.github.io/landing/subwatch/use-cases/audience-research/</loc><lastmod>2026-04-26</lastmod><priority>0.8</priority></url>
 </urlset>
