@@ -338,14 +338,24 @@ async function scanMonitor(id, btn) {
   loadMatches();
 }
 
+async function fetchReddit(url) {
+  try {
+    const resp = await fetch(url);
+    if (resp.ok) return await resp.json();
+  } catch (e) {}
+  const proxy = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
+  const resp = await fetch(proxy);
+  if (resp.ok) return await resp.json();
+  return null;
+}
+
 async function scanSingle(monitor) {
   let newCount = 0;
   for (const sub of monitor.subreddits) {
     try {
       const url = `https://www.reddit.com/r/${encodeURIComponent(sub)}/search.json?q=${encodeURIComponent(monitor.keyword)}&sort=new&limit=25&restrict_sr=1&t=week`;
-      const resp = await fetch(url, { headers: { 'Accept': 'application/json' } });
-      if (!resp.ok) continue;
-      const json = await resp.json();
+      const json = await fetchReddit(url);
+      if (!json) continue;
       const posts = json?.data?.children || [];
 
       for (const post of posts) {
