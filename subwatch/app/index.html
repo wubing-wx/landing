@@ -397,7 +397,7 @@ async function loadMatches() {
 
   $matchesList.innerHTML = data.map(m => `
     <div class="match-card">
-      <h4><a href="${escHtml(m.url)}" target="_blank">${escHtml(m.title)}</a></h4>
+      <h4><a href="${escHtml(m.url)}" target="_blank">${escHtml(decodeEntities(m.title))}</a></h4>
       <div class="match-meta">
         <span class="badge">r/${escHtml(m.subreddit)}</span>
         <span>↑ ${m.score}</span>
@@ -405,7 +405,7 @@ async function loadMatches() {
         <span>u/${escHtml(m.author)}</span>
         <span>${timeAgo(m.created_utc)}</span>
       </div>
-      ${m.body ? `<div class="match-body">${escHtml(m.body)}</div>` : ''}
+      ${m.body ? `<div class="match-body">${escHtml(decodeEntities(m.body))}</div>` : ''}
     </div>
   `).join('');
 }
@@ -420,6 +420,13 @@ function showStatus(el, msg, type) {
 function escHtml(s) {
   if (!s) return '';
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function decodeEntities(s) {
+  if (!s) return '';
+  const t = document.createElement('textarea');
+  t.innerHTML = s;
+  return t.value;
 }
 
 function timeAgo(dateStr) {
