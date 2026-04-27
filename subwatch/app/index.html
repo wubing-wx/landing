@@ -302,24 +302,50 @@ async function deleteMonitor(id) {
   loadMatches();
 }
 
-// --- Reddit Scan ---
+// --- Reddit Scan (via proxy to avoid CORS) ---
+async function redditSearch(keyword, subreddit) {
+  const proxy = 'https://api.allorigins.win/raw?url=';
+  const redditUrl = `https://www.reddit.com/r/${encodeURIComponent(subreddit)}/search.json?q=${encodeURIComponent(keyword)}&sort=new&limit=25&restrict_sr=1&t=month`;
+  try {
+    const resp = await fetch(proxy + encodeURIComponent(redditUrl));
+    if (!resp.ok) return [];
+    const json = await resp.json();
+    return json?.data?.children || [];
+  } catch (e) { return []; }
+}
+
+async function scanAndStore(monitor) {
+  let count = 0;
+  for (const sub of monitor.subreddits) {
+    const posts = await redditSearch(monitor.keyword, sub);
+    for (const post of posts) {
+      const d = post.data;
+      const { error } = await sb.from('matches').upsert({
+        monitor_id: monitor.id, reddit_post_id: d.id,
+        title: d.title?.substring(0, 500), body: (d.selftext || '').substring(0, 500),
+        subreddit: d.subreddit, author: d.author || '[deleted]',
+        url: 'https://reddit.com' + d.permalink,
+        score: d.score || 0, num_comments: d.num_comments || 0,
+        created_utc: new Date(d.created_utc * 1000).toISOString()
+      }, { onConflict: 'reddit_post_id' });
+      if (!error) count++;
+    }
+  }
+  return count;
+}
+
 document.getElementById('btn-scan-all').onclick = async function() {
   this.disabled = true;
   this.textContent = 'Scanning...';
-  const { data: monitors } = await sb.from('monitors').select('id').eq('is_active', true);
+  const { data: monitors } = await sb.from('monitors').select('*').eq('is_active', true);
   if (!monitors?.length) {
     showStatus($dashStatus, 'No active monitors to scan.', 'info');
     this.disabled = false;
     this.textContent = 'Scan All Now';
     return;
   }
-
   let totalNew = 0;
-  for (const m of monitors) {
-    const { data, error } = await sb.rpc('scan_monitor', { p_monitor_id: m.id });
-    if (!error && data) totalNew += data;
-  }
-
+  for (const m of monitors) totalNew += await scanAndStore(m);
   showStatus($dashStatus, `Scan complete. ${totalNew} new match${totalNew !== 1 ? 'es' : ''} found.`, totalNew > 0 ? 'success' : 'info');
   this.disabled = false;
   this.textContent = 'Scan All Now';
@@ -329,12 +355,10 @@ document.getElementById('btn-scan-all').onclick = async function() {
 async function scanMonitor(id, btn) {
   btn.disabled = true;
   btn.textContent = 'Scanning...';
-  const { data, error } = await sb.rpc('scan_monitor', { p_monitor_id: id });
-  if (error) {
-    showStatus($dashStatus, error.message, 'error');
-  } else {
-    showStatus($dashStatus, `${data} new match${data !== 1 ? 'es' : ''} found.`, data > 0 ? 'success' : 'info');
-  }
+  const { data: mon } = await sb.from('monitors').select('*').eq('id', id).single();
+  if (!mon) { btn.disabled = false; btn.textContent = 'Scan'; return; }
+  const count = await scanAndStore(mon);
+  showStatus($dashStatus, `${count} new match${count !== 1 ? 'es' : ''} found.`, count > 0 ? 'success' : 'info');
   btn.disabled = false;
   btn.textContent = 'Scan';
   loadMatches();
