@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SubWatch — Dashboard</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📡</text></svg>">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#e4e4e7;background:#09090b;line-height:1.6;min-height:100vh}
+a{color:#3b82f6;text-decoration:none}
+a:hover{text-decoration:underline}
+.container{max-width:800px;margin:0 auto;padding:24px}
+
+/* Header */
+.header{display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid #27272a;margin-bottom:32px}
+.header h1{font-size:20px;font-weight:700}
+.header h1 span{color:#3b82f6}
+.btn-logout{background:none;border:1px solid #27272a;color:#a1a1aa;padding:6px 16px;border-radius:6px;cursor:pointer;font-size:13px}
+.btn-logout:hover{border-color:#3b82f6;color:#e4e4e7}
+
+/* Auth */
+.auth-wrap{max-width:400px;margin:80px auto;text-align:center}
+.auth-wrap h2{font-size:28px;margin-bottom:8px}
+.auth-wrap p{color:#a1a1aa;margin-bottom:24px;font-size:15px}
+.auth-form{display:flex;flex-direction:column;gap:12px}
+.auth-form input{padding:12px 16px;border-radius:8px;border:1px solid #27272a;background:#18181b;color:#e4e4e7;font-size:15px;outline:none}
+.auth-form input:focus{border-color:#3b82f6}
+.btn-primary{padding:12px 24px;border-radius:8px;background:#3b82f6;color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer}
+.btn-primary:hover{background:#2563eb}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed}
+.auth-toggle{margin-top:16px;color:#a1a1aa;font-size:14px}
+.auth-toggle button{background:none;border:none;color:#3b82f6;cursor:pointer;font-size:14px}
+
+/* Dashboard */
+.section{margin-bottom:32px}
+.section h2{font-size:18px;font-weight:600;margin-bottom:16px}
+
+/* Add Monitor */
+.add-form{display:flex;flex-direction:column;gap:12px;background:#18181b;border:1px solid #27272a;border-radius:12px;padding:20px}
+.add-form label{font-size:13px;color:#a1a1aa}
+.add-form input{padding:10px 14px;border-radius:6px;border:1px solid #27272a;background:#09090b;color:#e4e4e7;font-size:14px;outline:none}
+.add-form input:focus{border-color:#3b82f6}
+.add-form .hint{font-size:12px;color:#52525b}
+.add-form .row{display:flex;gap:8px}
+.add-form .row .btn-primary{white-space:nowrap}
+
+/* Monitor List */
+.monitor-card{background:#18181b;border:1px solid #27272a;border-radius:12px;padding:16px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+.monitor-info h3{font-size:15px;font-weight:600}
+.monitor-info .subs{font-size:13px;color:#a1a1aa;margin-top:4px}
+.monitor-actions{display:flex;gap:8px}
+.btn-scan{background:#18181b;border:1px solid #27272a;color:#22c55e;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:13px}
+.btn-scan:hover{border-color:#22c55e}
+.btn-scan:disabled{opacity:.5;cursor:not-allowed}
+.btn-delete{background:none;border:1px solid #27272a;color:#ef4444;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:13px}
+.btn-delete:hover{border-color:#ef4444}
+
+/* Matches */
+.match-card{background:#18181b;border:1px solid #27272a;border-radius:12px;padding:16px;margin-bottom:8px}
+.match-card h4{font-size:14px;font-weight:600;margin-bottom:4px}
+.match-card h4 a{color:#e4e4e7}
+.match-card h4 a:hover{color:#3b82f6}
+.match-meta{font-size:12px;color:#a1a1aa;display:flex;gap:12px;margin-top:6px}
+.match-body{font-size:13px;color:#a1a1aa;margin-top:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.badge{display:inline-block;background:#27272a;padding:2px 8px;border-radius:4px;font-size:11px;color:#a1a1aa}
+
+/* Status */
+.status{padding:12px;border-radius:8px;font-size:14px;margin-bottom:16px;display:none}
+.status.error{display:block;background:#450a0a;border:1px solid #7f1d1d;color:#fca5a5}
+.status.success{display:block;background:#052e16;border:1px solid #166534;color:#22c55e}
+.status.info{display:block;background:#172554;border:1px solid #1e3a5f;color:#93c5fd}
+
+/* Empty */
+.empty{text-align:center;color:#52525b;padding:32px;font-size:14px}
+
+/* Scan All */
+.scan-all-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.match-count{font-size:14px;color:#a1a1aa}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- Auth Section -->
+<div id="auth" style="display:none">
+<div class="auth-wrap">
+  <h2>📡 SubWatch</h2>
+  <p>Monitor Reddit keywords. Find opportunities.</p>
+  <div id="auth-status" class="status"></div>
+  <form class="auth-form" id="auth-form">
+    <input type="email" id="auth-email" placeholder="you@example.com" required>
+    <input type="password" id="auth-password" placeholder="Password (min 6 chars)" required minlength="6">
+    <button type="submit" class="btn-primary" id="auth-btn">Sign Up</button>
+  </form>
+  <div class="auth-toggle">
+    <span id="auth-prompt">Already have an account?</span>
+    <button id="auth-switch">Sign In</button>
+  </div>
+</div>
+</div>
+
+<!-- Dashboard Section -->
+<div id="dashboard" style="display:none">
+<div class="header">
+  <h1>📡 <span>SubWatch</span></h1>
+  <div>
+    <span id="user-email" style="font-size:13px;color:#a1a1aa;margin-right:12px"></span>
+    <button class="btn-logout" id="btn-logout">Sign Out</button>
+  </div>
+</div>
+
+<div id="dash-status" class="status"></div>
+
+<!-- Add Monitor -->
+<div class="section">
+  <h2>Add Keyword Monitor</h2>
+  <div class="add-form">
+    <div>
+      <label>Keyword</label>
+      <input type="text" id="inp-keyword" placeholder='e.g. "I wish there was"'>
+    </div>
+    <div>
+      <label>Subreddits (comma separated)</label>
+      <input type="text" id="inp-subs" placeholder="e.g. SaaS, startups, entrepreneur">
+      <div class="hint">Leave empty to search all of Reddit</div>
+    </div>
+    <button class="btn-primary" id="btn-add">Add Monitor</button>
+  </div>
+</div>
+
+<!-- Active Monitors -->
+<div class="section">
+  <div class="scan-all-bar">
+    <h2>Your Monitors</h2>
+    <button class="btn-scan" id="btn-scan-all">Scan All Now</button>
+  </div>
+  <div id="monitors-list"><div class="empty">No monitors yet. Add a keyword above.</div></div>
+</div>
+
+<!-- Recent Matches -->
+<div class="section">
+  <div class="scan-all-bar">
+    <h2>Recent Matches</h2>
+    <span class="match-count" id="match-count"></span>
+  </div>
+  <div id="matches-list"><div class="empty">No matches yet. Add a monitor and scan.</div></div>
+</div>
+
+</div><!-- /dashboard -->
+</div><!-- /container -->
+
+<script>
+const SUPABASE_URL = 'https://wnhsmhtucgzyaavmkqin.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_v2-yHyEGML4UWM5BzzABgg_HCTzQJ8M';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// --- State ---
+let currentUser = null;
+let isSignUp = true;
+
+// --- DOM ---
+const $auth = document.getElementById('auth');
+const $dash = document.getElementById('dashboard');
+const $authForm = document.getElementById('auth-form');
+const $authBtn = document.getElementById('auth-btn');
+const $authSwitch = document.getElementById('auth-switch');
+const $authPrompt = document.getElementById('auth-prompt');
+const $authStatus = document.getElementById('auth-status');
+const $dashStatus = document.getElementById('dash-status');
+const $userEmail = document.getElementById('user-email');
+const $monitorsList = document.getElementById('monitors-list');
+const $matchesList = document.getElementById('matches-list');
+const $matchCount = document.getElementById('match-count');
+
+// --- Auth ---
+$authSwitch.onclick = () => {
+  isSignUp = !isSignUp;
+  $authBtn.textContent = isSignUp ? 'Sign Up' : 'Sign In';
+  $authPrompt.textContent = isSignUp ? 'Already have an account?' : "Don't have an account?";
+  $authSwitch.textContent = isSignUp ? 'Sign In' : 'Sign Up';
+  $authStatus.className = 'status';
+};
+
+$authForm.onsubmit = async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('auth-email').value;
+  const password = document.getElementById('auth-password').value;
+  $authBtn.disabled = true;
+  $authBtn.textContent = 'Loading...';
+
+  let result;
+  if (isSignUp) {
+    result = await sb.auth.signUp({ email, password });
+  } else {
+    result = await sb.auth.signInWithPassword({ email, password });
+  }
+
+  if (result.error) {
+    showStatus($authStatus, result.error.message, 'error');
+    $authBtn.disabled = false;
+    $authBtn.textContent = isSignUp ? 'Sign Up' : 'Sign In';
+    return;
+  }
+
+  if (isSignUp && result.data?.user?.identities?.length === 0) {
+    showStatus($authStatus, 'Account already exists. Try signing in.', 'error');
+    $authBtn.disabled = false;
+    $authBtn.textContent = 'Sign Up';
+    return;
+  }
+
+  if (isSignUp) {
+    showStatus($authStatus, 'Check your email for confirmation link.', 'success');
+    $authBtn.disabled = false;
+    $authBtn.textContent = 'Sign Up';
+  }
+};
+
+document.getElementById('btn-logout').onclick = async () => {
+  await sb.auth.signOut();
+  showAuth();
+};
+
+// --- Auth State ---
+sb.auth.onAuthStateChange((event, session) => {
+  if (session?.user) {
+    currentUser = session.user;
+    showDashboard();
+  } else {
+    currentUser = null;
+    showAuth();
+  }
+});
+
+function showAuth() {
+  $auth.style.display = 'block';
+  $dash.style.display = 'none';
+}
+
+function showDashboard() {
+  $auth.style.display = 'none';
+  $dash.style.display = 'block';
+  $userEmail.textContent = currentUser.email;
+  loadMonitors();
+  loadMatches();
+}
+
+// --- Monitors CRUD ---
+document.getElementById('btn-add').onclick = async () => {
+  const keyword = document.getElementById('inp-keyword').value.trim();
+  const subsRaw = document.getElementById('inp-subs').value.trim();
+  if (!keyword) { showStatus($dashStatus, 'Keyword is required.', 'error'); return; }
+
+  const subreddits = subsRaw ? subsRaw.split(',').map(s => s.trim().replace(/^r\//, '')).filter(Boolean) : ['all'];
+
+  const { error } = await sb.from('monitors').insert({
+    user_id: currentUser.id,
+    keyword,
+    subreddits
+  });
+
+  if (error) { showStatus($dashStatus, error.message, 'error'); return; }
+
+  document.getElementById('inp-keyword').value = '';
+  document.getElementById('inp-subs').value = '';
+  showStatus($dashStatus, `Monitor added: "${keyword}"`, 'success');
+  loadMonitors();
+};
+
+async function loadMonitors() {
+  const { data, error } = await sb.from('monitors')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) { showStatus($dashStatus, error.message, 'error'); return; }
+
+  if (!data?.length) {
+    $monitorsList.innerHTML = '<div class="empty">No monitors yet. Add a keyword above.</div>';
+    return;
+  }
+
+  $monitorsList.innerHTML = data.map(m => `
+    <div class="monitor-card" data-id="${m.id}">
+      <div class="monitor-info">
+        <h3>"${escHtml(m.keyword)}"</h3>
+        <div class="subs">${m.subreddits.map(s => '<span class="badge">r/' + escHtml(s) + '</span>').join(' ')}</div>
+      </div>
+      <div class="monitor-actions">
+        <button class="btn-scan" onclick="scanMonitor('${m.id}', this)">Scan</button>
+        <button class="btn-delete" onclick="deleteMonitor('${m.id}')">Delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function deleteMonitor(id) {
+  const { error } = await sb.from('monitors').delete().eq('id', id);
+  if (error) { showStatus($dashStatus, error.message, 'error'); return; }
+  loadMonitors();
+  loadMatches();
+}
+
+// --- Reddit Scan ---
+document.getElementById('btn-scan-all').onclick = async function() {
+  this.disabled = true;
+  this.textContent = 'Scanning...';
+  const { data: monitors } = await sb.from('monitors').select('*').eq('is_active', true);
+  if (!monitors?.length) {
+    showStatus($dashStatus, 'No active monitors to scan.', 'info');
+    this.disabled = false;
+    this.textContent = 'Scan All Now';
+    return;
+  }
+
+  let totalNew = 0;
+  for (const m of monitors) {
+    totalNew += await scanSingle(m);
+  }
+
+  showStatus($dashStatus, `Scan complete. ${totalNew} new match${totalNew !== 1 ? 'es' : ''} found.`, totalNew > 0 ? 'success' : 'info');
+  this.disabled = false;
+  this.textContent = 'Scan All Now';
+  loadMatches();
+};
+
+async function scanMonitor(id, btn) {
+  btn.disabled = true;
+  btn.textContent = 'Scanning...';
+  const { data } = await sb.from('monitors').select('*').eq('id', id).single();
+  if (!data) { btn.disabled = false; btn.textContent = 'Scan'; return; }
+
+  const count = await scanSingle(data);
+  showStatus($dashStatus, `"${data.keyword}": ${count} new match${count !== 1 ? 'es' : ''}.`, count > 0 ? 'success' : 'info');
+  btn.disabled = false;
+  btn.textContent = 'Scan';
+  loadMatches();
+}
+
+async function scanSingle(monitor) {
+  let newCount = 0;
+  for (const sub of monitor.subreddits) {
+    try {
+      const url = `https://www.reddit.com/r/${encodeURIComponent(sub)}/search.json?q=${encodeURIComponent(monitor.keyword)}&sort=new&limit=25&restrict_sr=1&t=week`;
+      const resp = await fetch(url, { headers: { 'Accept': 'application/json' } });
+      if (!resp.ok) continue;
+      const json = await resp.json();
+      const posts = json?.data?.children || [];
+
+      for (const post of posts) {
+        const d = post.data;
+        const { error } = await sb.from('matches').upsert({
+          monitor_id: monitor.id,
+          reddit_post_id: d.id,
+          title: d.title,
+          body: (d.selftext || '').substring(0, 500),
+          subreddit: d.subreddit,
+          author: d.author,
+          url: `https://reddit.com${d.permalink}`,
+          score: d.score,
+          num_comments: d.num_comments,
+          created_utc: new Date(d.created_utc * 1000).toISOString()
+        }, { onConflict: 'reddit_post_id' });
+
+        if (!error) newCount++;
+      }
+    } catch (e) {
+      console.error(`Scan error for r/${sub}:`, e);
+    }
+  }
+  return newCount;
+}
+
+// --- Matches ---
+async function loadMatches() {
+  const { data, error } = await sb.from('matches')
+    .select('*, monitors!inner(keyword)')
+    .order('matched_at', { ascending: false })
+    .limit(50);
+
+  if (error) { showStatus($dashStatus, error.message, 'error'); return; }
+
+  $matchCount.textContent = data?.length ? `${data.length} results` : '';
+
+  if (!data?.length) {
+    $matchesList.innerHTML = '<div class="empty">No matches yet. Add a monitor and scan.</div>';
+    return;
+  }
+
+  $matchesList.innerHTML = data.map(m => `
+    <div class="match-card">
+      <h4><a href="${escHtml(m.url)}" target="_blank">${escHtml(m.title)}</a></h4>
+      <div class="match-meta">
+        <span class="badge">r/${escHtml(m.subreddit)}</span>
+        <span>↑ ${m.score}</span>
+        <span>💬 ${m.num_comments}</span>
+        <span>u/${escHtml(m.author)}</span>
+        <span>${timeAgo(m.created_utc)}</span>
+      </div>
+      ${m.body ? `<div class="match-body">${escHtml(m.body)}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+// --- Helpers ---
+function showStatus(el, msg, type) {
+  el.textContent = msg;
+  el.className = `status ${type}`;
+  if (type !== 'error') setTimeout(() => { el.className = 'status'; }, 5000);
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function timeAgo(dateStr) {
+  if (!dateStr) return '';
+  const diff = (Date.now() - new Date(dateStr).getTime()) / 1000;
+  if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+  if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+  return Math.floor(diff / 86400) + 'd ago';
+}
+</script>
+</body>
+</html>
