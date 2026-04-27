@@ -130,6 +130,15 @@ a:hover{text-decoration:underline}
   </div>
 </div>
 
+<!-- Subscription -->
+<div class="section" id="paywall" style="display:none">
+  <div class="add-form" style="text-align:center;border-color:#3b82f6">
+    <h3 style="font-size:16px">Upgrade to SubWatch Pro — $29/mo</h3>
+    <p style="font-size:14px;color:#a1a1aa">50 keywords · Unlimited subreddits · Hourly scans · Email digests</p>
+    <button class="btn-primary" id="btn-subscribe" style="margin-top:8px">Subscribe $29/mo</button>
+  </div>
+</div>
+
 <!-- Active Monitors -->
 <div class="section">
   <div class="scan-all-bar">
@@ -243,9 +252,15 @@ function showDashboard() {
   $auth.style.display = 'none';
   $dash.style.display = 'block';
   $userEmail.textContent = currentUser.email;
+  document.getElementById('paywall').style.display = 'block';
   loadMonitors();
   loadMatches();
 }
+
+document.getElementById('btn-subscribe').onclick = () => {
+  window.open('mailto:yixinzhilu@gmail.com?subject=SubWatch Pro Subscription&body=I want to subscribe to SubWatch Pro ($29/mo).%0A%0AEmail: ' + encodeURIComponent(currentUser.email), '_blank');
+  showStatus($dashStatus, 'Email us to complete your subscription. We\\'ll set you up within 24 hours.', 'success');
+};
 
 // --- Monitors CRUD ---
 document.getElementById('btn-add').onclick = async () => {
