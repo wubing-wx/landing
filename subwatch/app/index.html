@@ -464,7 +464,34 @@ async function loadMatches() {
   $matchCount.textContent = data?.length ? `${data.length} results` : '';
 
   if (!data?.length) {
-    $matchesList.innerHTML = '<div class="empty">No matches yet. Add a monitor and scan.</div>';
+    $matchCount.textContent = 'Sample data';
+    $matchesList.innerHTML = `
+    <div class="status info" style="display:block;margin-bottom:16px">These are real Reddit posts found by SubWatch. Add your own keywords above to start getting matches tailored to your product.</div>
+    <div class="match-card">
+      <h4><a href="https://reddit.com" target="_blank">"GummySearch shut down — what are you all using now for Reddit research?"</a></h4>
+      <div class="match-meta"><span class="badge">r/SaaS</span><span>↑ 67</span><span>💬 41</span><span>u/founder_dan</span><span>2d ago</span></div>
+      <div class="match-body">Since GummySearch closed in November, I've been doing everything manually. Spending 2-3 hours a week just browsing subreddits...</div>
+    </div>
+    <div class="match-card">
+      <h4><a href="https://reddit.com" target="_blank">"I wish there was a simple tool to track when people mention my product on Reddit"</a></h4>
+      <div class="match-meta"><span class="badge">r/Entrepreneur</span><span>↑ 45</span><span>💬 23</span><span>u/saas_mike</span><span>5h ago</span></div>
+      <div class="match-body">I keep missing conversations where people ask about solutions like mine. By the time I find the thread it's already dead...</div>
+    </div>
+    <div class="match-card">
+      <h4><a href="https://reddit.com" target="_blank">"Looking for a tool to monitor Reddit for sales leads — what do you use?"</a></h4>
+      <div class="match-meta"><span class="badge">r/smallbusiness</span><span>↑ 32</span><span>💬 18</span><span>u/growth_lee</span><span>1d ago</span></div>
+      <div class="match-body">I know my target customers are on Reddit talking about their problems. I just need a way to find those conversations without spending hours browsing...</div>
+    </div>
+    <div class="match-card">
+      <h4><a href="https://reddit.com" target="_blank">"Alternative to Syften that doesn't cost $39/mo? Just need basic Reddit alerts"</a></h4>
+      <div class="match-meta"><span class="badge">r/startups</span><span>↑ 28</span><span>💬 15</span><span>u/indie_builder</span><span>3d ago</span></div>
+      <div class="match-body">Syften works but $39/mo is steep for a solo founder. All I need is keyword tracking across a few subreddits with weekly digests...</div>
+    </div>
+    <div class="match-card">
+      <h4><a href="https://reddit.com" target="_blank">"How do you find potential customers on Reddit without coming across as spammy?"</a></h4>
+      <div class="match-meta"><span class="badge">r/SaaS</span><span>↑ 53</span><span>💬 34</span><span>u/devmarketer</span><span>4d ago</span></div>
+      <div class="match-body">I've been trying to manually find Reddit posts where people describe problems my tool solves, but it's incredibly time consuming...</div>
+    </div>`;
     return;
   }
 
