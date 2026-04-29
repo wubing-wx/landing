@@ -78,6 +78,23 @@ a:hover{text-decoration:underline}
 /* Scan All */
 .scan-all-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
 .match-count{font-size:14px;color:#a1a1aa}
+
+/* Demo Preview */
+.demo-section{max-width:600px;margin:48px auto 0;text-align:left}
+.demo-title{font-size:15px;color:#a1a1aa;font-weight:400;margin-bottom:16px;text-align:center}
+.demo-card{background:#18181b;border:1px solid #27272a;border-radius:12px;padding:16px;margin-bottom:8px}
+.demo-card h4{font-size:14px;font-weight:600}
+.demo-card h4 a{color:#e4e4e7;pointer-events:none}
+.demo-cta{text-align:center;color:#a1a1aa;font-size:14px;margin-top:20px}
+.demo-cta strong{color:#3b82f6}
+
+/* Onboarding */
+.onboard-box{background:#172554;border:1px solid #1e3a5f;border-radius:12px;padding:20px;margin-bottom:24px}
+.onboard-box h3{font-size:16px;margin-bottom:8px;color:#93c5fd}
+.onboard-box p{font-size:14px;color:#93c5fd;margin-bottom:0}
+.onboard-steps{list-style:none;padding:0;margin:12px 0 0}
+.onboard-steps li{font-size:14px;color:#93c5fd;padding:4px 0}
+.onboard-steps li::before{content:"→ ";color:#3b82f6}
 </style>
 </head>
 <body>
@@ -87,17 +104,53 @@ a:hover{text-decoration:underline}
 <div id="auth" style="display:none">
 <div class="auth-wrap">
   <h2>📡 SubWatch</h2>
-  <p>Monitor Reddit keywords. Find opportunities.</p>
+  <p>Monitor Reddit keywords. Find customers before your competitors do.</p>
   <div id="auth-status" class="status"></div>
   <form class="auth-form" id="auth-form">
     <input type="email" id="auth-email" placeholder="you@example.com" required>
     <input type="password" id="auth-password" placeholder="Password (min 6 chars)" required minlength="6">
-    <button type="submit" class="btn-primary" id="auth-btn">Sign Up</button>
+    <button type="submit" class="btn-primary" id="auth-btn">Sign Up Free</button>
   </form>
   <div class="auth-toggle">
     <span id="auth-prompt">Already have an account?</span>
     <button id="auth-switch">Sign In</button>
   </div>
+</div>
+
+<!-- Demo Preview -->
+<div class="demo-section">
+  <h3 class="demo-title">Here's what SubWatch finds — automatically, every 4 hours</h3>
+  <div class="demo-card">
+    <h4><a href="#">"I wish there was a simple tool to track Reddit mentions of my product"</a></h4>
+    <div class="match-meta">
+      <span class="badge">r/SaaS</span>
+      <span>↑ 47</span>
+      <span>💬 23</span>
+      <span>2h ago</span>
+    </div>
+    <div class="match-body">I've been manually searching Reddit every morning for mentions of our niche. There has to be a better way...</div>
+  </div>
+  <div class="demo-card">
+    <h4><a href="#">"Looking for a tool to monitor Reddit for sales leads"</a></h4>
+    <div class="match-meta">
+      <span class="badge">r/Entrepreneur</span>
+      <span>↑ 32</span>
+      <span>💬 18</span>
+      <span>5h ago</span>
+    </div>
+    <div class="match-body">GummySearch shut down and I need something that alerts me when people ask for products like mine...</div>
+  </div>
+  <div class="demo-card">
+    <h4><a href="#">"Alternative to GummySearch for Reddit audience research?"</a></h4>
+    <div class="match-meta">
+      <span class="badge">r/SomebodyMakeThis</span>
+      <span>↑ 61</span>
+      <span>💬 34</span>
+      <span>1d ago</span>
+    </div>
+    <div class="match-body">Since GummySearch closed in November, I've tried F5Bot and Syften but neither does pain point detection...</div>
+  </div>
+  <p class="demo-cta">437 matches found this month across 6 subreddits. <strong>Sign up to set your own keywords.</strong></p>
 </div>
 </div>
 
@@ -112,6 +165,17 @@ a:hover{text-decoration:underline}
 </div>
 
 <div id="dash-status" class="status"></div>
+
+<!-- Onboarding (shown when user has no monitors) -->
+<div id="onboarding" class="onboard-box" style="display:none">
+  <h3>Welcome to SubWatch</h3>
+  <p>Set up your first keyword monitor in 30 seconds:</p>
+  <ul class="onboard-steps">
+    <li>Add a keyword like <strong>"looking for a tool"</strong> or <strong>"alternative to [competitor]"</strong></li>
+    <li>Pick subreddits where your customers hang out</li>
+    <li>SubWatch scans every 4 hours and surfaces new leads</li>
+  </ul>
+</div>
 
 <!-- Add Monitor -->
 <div class="section">
@@ -133,9 +197,15 @@ a:hover{text-decoration:underline}
 <!-- Subscription -->
 <div class="section" id="paywall" style="display:none">
   <div class="add-form" style="text-align:center;border-color:#3b82f6">
-    <h3 style="font-size:16px">Upgrade to SubWatch Pro — $29/mo</h3>
-    <p style="font-size:14px;color:#a1a1aa">50 keywords · Unlimited subreddits · Hourly scans · Email digests</p>
-    <button class="btn-primary" id="btn-subscribe" style="margin-top:8px">Subscribe $29/mo</button>
+    <h3 style="font-size:16px">SubWatch Pro — $29/mo</h3>
+    <p style="font-size:14px;color:#a1a1aa;line-height:1.8">
+      ✓ 50 keyword monitors across unlimited subreddits<br>
+      ✓ Automatic scans every 4 hours — you never miss a lead<br>
+      ✓ Weekly email digest of top matches<br>
+      ✓ GummySearch shut down. This is what replaces it.
+    </p>
+    <p style="font-size:13px;color:#52525b;margin-top:8px">One reply to the right Reddit post = one customer. That's $29 paid back.</p>
+    <button class="btn-primary" id="btn-subscribe" style="margin-top:12px">Subscribe $29/mo</button>
   </div>
 </div>
 
@@ -291,10 +361,13 @@ async function loadMonitors() {
 
   if (error) { showStatus($dashStatus, error.message, 'error'); return; }
 
+  const $onboarding = document.getElementById('onboarding');
   if (!data?.length) {
-    $monitorsList.innerHTML = '<div class="empty">No monitors yet. Add a keyword above.</div>';
+    $monitorsList.innerHTML = '<div class="empty">No monitors yet. Add a keyword above to start finding leads.</div>';
+    if ($onboarding) $onboarding.style.display = 'block';
     return;
   }
+  if ($onboarding) $onboarding.style.display = 'none';
 
   $monitorsList.innerHTML = data.map(m => `
     <div class="monitor-card" data-id="${m.id}">
