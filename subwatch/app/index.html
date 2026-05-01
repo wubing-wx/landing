@@ -536,5 +536,6 @@ function timeAgo(dateStr) {
   return Math.floor(diff / 86400) + 'd ago';
 }
 </script>
+<script>fetch('https://wnhsmhtucgzyaavmkqin.supabase.co/rest/v1/page_views',{method:'POST',headers:{'apikey':'sb_publishable_v2-yHyEGML4UWM5BzzABgg_HCTzQJ8M','Content-Type':'application/json'},body:JSON.stringify({path:location.pathname,referrer:document.referrer||null}),keepalive:true}).catch(function(){});</script>
 </body>
 </html>
